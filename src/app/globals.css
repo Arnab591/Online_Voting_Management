@@ -2,20 +2,24 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: #0f172a; /* Slate 900 - Dark Blue */
+  --color-primary-hover: #1e293b; /* Slate 800 */
+  --color-accent: #10b981; /* Emerald 500 - Green */
+  --color-accent-hover: #059669; /* Emerald 600 */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f172a;
+    --foreground: #ffffff;
   }
 }
 
