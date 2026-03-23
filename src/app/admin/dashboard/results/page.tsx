@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { Lock, Unlock, AlertTriangle, TrendingUp, Users, CheckCircle } from 'lucide-react';
+import { useTranslation } from '@/context/LanguageContext';
 
 const COLORS = ['#8b5cf6', '#3b82f6', '#ec4899', '#f59e0b', '#10b981', '#6366f1'];
 
 export default function ResultsDashboard() {
+  const { tr } = useTranslation();
   const [isLocked, setIsLocked] = useState(true);
   const [electionState, setElectionState] = useState('Upcoming');
   const [stats, setStats] = useState({ totalVoters: 0, votesCast: 0, remaining: 0 });
@@ -67,7 +69,7 @@ export default function ResultsDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
-            Analytical Reporting
+            {tr.dashboard.results}
             {isLocked && <Lock className="w-5 h-5 text-red-500" />}
           </h1>
           <p className="text-gray-400">Comprehensive breakdown of election results and demographics</p>

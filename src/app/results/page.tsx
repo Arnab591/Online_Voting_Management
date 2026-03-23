@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from '@/context/LanguageContext';
 
 const mockResults = [
   { id: '1', name: 'Rahul Sharma', votes: 520, color: 'bg-primary dark:bg-blue-500' },
@@ -9,6 +10,7 @@ const mockResults = [
 ];
 
 export default function ResultDashboard() {
+  const { tr } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const totalVotes = mockResults.reduce((acc, curr) => acc + curr.votes, 0);
 
@@ -31,22 +33,22 @@ export default function ResultDashboard() {
           <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-64 h-64 bg-blue-400 opacity-10 blur-3xl rounded-full" />
           
           <h1 className="relative z-10 text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-4">
-            Election Results
+            {tr.admin.electionResultsTitle}
           </h1>
           <p className="relative z-10 text-xl text-gray-600 dark:text-gray-300">
-            Annual General Election
+            {tr.admin.annualGeneralElection}
           </p>
 
           <div className="mt-8 relative z-10 inline-flex flex-col items-center bg-green-50 dark:bg-green-900/20 px-8 py-6 rounded-2xl border border-green-100 dark:border-green-800/30 w-full sm:w-auto">
             <span className="text-sm font-semibold uppercase tracking-wider text-green-600 dark:text-green-400 mb-2">
-              Official Winner
+              {tr.admin.officialWinner}
             </span>
             <div className="flex flex-col items-center">
               <span className="text-3xl font-bold text-gray-900 dark:text-white">
                 {winner.name}
               </span>
               <span className="text-lg text-green-700 dark:text-green-300 mt-1 font-medium bg-green-100 dark:bg-green-800/50 px-3 py-1 rounded-full">
-                {winner.votes} Votes
+                {winner.votes} {tr.admin.votes}
               </span>
             </div>
             <div className="mt-4 flex -space-x-2">
@@ -60,7 +62,7 @@ export default function ResultDashboard() {
         {/* Bar Charts Section */}
         <div className="bg-white dark:bg-primary-hover rounded-2xl p-8 sm:p-10 shadow-sm border border-gray-100 dark:border-gray-800">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-100 dark:border-gray-800 pb-4">
-            Vote Distribution
+            {tr.admin.voteDistribution}
           </h2>
           
           <div className="space-y-8">
@@ -103,8 +105,8 @@ export default function ResultDashboard() {
           </div>
 
           <div className="mt-10 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between text-sm text-gray-500 dark:text-gray-400 font-medium">
-            <span>Total Votes Cast: {totalVotes}</span>
-            <span>100% Counted</span>
+            <span>{tr.admin.resultsTotalVotes}: {totalVotes}</span>
+            <span>100% {tr.admin.percentCounted}</span>
           </div>
         </div>
 

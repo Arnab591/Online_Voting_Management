@@ -3,14 +3,21 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslation } from '@/context/LanguageContext';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
 
 export function Navbar() {
   const pathname = usePathname();
   const [showNotification, setShowNotification] = useState(true);
+  const { tr } = useTranslation();
   
-  // Mock logged-in state: we are logged in if we are not on the public landing/auth pages
-  const isPublicPage = pathname === '/' || pathname === '/login' || pathname === '/register';
+  // All /login/* and /register/* paths are unauthenticated — show the minimal navbar
+  const isPublicPage =
+    pathname === '/' ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/register');
   const isLoggedIn = !isPublicPage;
+
 
   return (
     <nav className="fixed top-0 z-50 w-full bg-transparent pointer-events-none flex flex-col items-center">
@@ -19,7 +26,7 @@ export function Navbar() {
         <div className="w-full bg-accent/90 backdrop-blur-md border-b border-accent-hover text-white py-2 px-4 flex justify-between items-center pointer-events-auto shadow-md transition-all duration-300 z-50">
            <div className="flex-1 flex justify-center items-center gap-3">
              <span className="flex h-2 w-2 rounded-full bg-white animate-pulse"></span>
-             <span className="text-sm font-medium">LIVE: General Election 2026 early voting is now open. View Live Results below!</span>
+             <span className="text-sm font-medium">{tr.nav.liveBanner}</span>
            </div>
            <button onClick={() => setShowNotification(false)} className="text-white hover:text-gray-200 transition-colors p-1 rounded-full hover:bg-white/20">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
@@ -62,7 +69,7 @@ export function Navbar() {
                     </svg>
                   </div>
                   <span className="text-sm font-semibold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pr-4">
-                    Profile
+                    {tr.nav.profile}
                   </span>
                 </Link>
 
@@ -73,9 +80,11 @@ export function Navbar() {
                     </svg>
                   </div>
                   <span className="text-sm font-semibold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pr-4">
-                    Logout
+                    {tr.nav.logout}
                   </span>
                 </Link>
+
+                <LanguageSelector />
               </div>
             </>
           ) : (
@@ -103,11 +112,12 @@ export function Navbar() {
                   Security Audit
                 </Link>
                 <Link href="/login" className="px-6 py-3 text-sm font-semibold text-white rounded-full bg-gray-900/50 hover:bg-gray-900/70 backdrop-blur-lg border border-white/10 shadow-xl transition-all duration-300">
-                  Login
+                  {tr.home.loginBtn}
                 </Link>
                 <Link href="/register" className="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-accent/20 hover:shadow-2xl hover:shadow-accent/40 hover:-translate-y-0.5 hover:bg-accent-hover transition-all duration-300">
-                  Register
+                  {tr.home.registerBtn}
                 </Link>
+                <LanguageSelector />
               </div>
             </>
           )}

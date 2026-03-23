@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, X, Building2, GraduationCap, Landmark, User, ShieldCheck } from 'lucide-react';
+import { useTranslation } from '@/context/LanguageContext';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                               */
@@ -15,7 +16,9 @@ type AuthMode = 'login' | 'register';
 interface AuthModalProps {
   initialMode: AuthMode;
   onClose: () => void;
-  embeddedMode?: boolean;  // when true: no backdrop, card is page-centered
+  embeddedMode?: boolean;
+  initialRole?: Role;       // pre-select a role (used by /login/voter, /login/admin-type)
+  startAtForm?: boolean;    // skip straight to the auth form
 }
 
 /* ------------------------------------------------------------------ */
@@ -99,11 +102,12 @@ function RippleButton({ children, onClick, className = '', disabled = false, typ
 /*  Step 1 — Role selection                                            */
 /* ------------------------------------------------------------------ */
 function StepRole({ onSelect }: { onSelect: (r: Role) => void }) {
+  const { tr } = useTranslation();
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-white">Choose Your Access</h2>
-        <p className="text-gray-400 mt-2 text-sm">Select the portal that matches your role</p>
+        <h2 className="text-3xl font-bold text-white">{tr.auth.chooseAccess}</h2>
+        <p className="text-gray-400 mt-2 text-sm">{tr.auth.selectPortal}</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -114,8 +118,8 @@ function StepRole({ onSelect }: { onSelect: (r: Role) => void }) {
               <User className="w-8 h-8 text-cyan-400" />
             </div>
             <div className="text-center">
-              <p className="font-bold text-white text-lg">Voter Access</p>
-              <p className="text-gray-400 text-xs mt-1">Cast your vote securely</p>
+              <p className="font-bold text-white text-lg">{tr.auth.voterAccess}</p>
+              <p className="text-gray-400 text-xs mt-1">{tr.auth.castVote}</p>
             </div>
           </div>
         </TiltCard>
@@ -127,8 +131,8 @@ function StepRole({ onSelect }: { onSelect: (r: Role) => void }) {
               <ShieldCheck className="w-8 h-8 text-purple-400" />
             </div>
             <div className="text-center">
-              <p className="font-bold text-white text-lg">Admin Access</p>
-              <p className="text-gray-400 text-xs mt-1">Manage the system</p>
+              <p className="font-bold text-white text-lg">{tr.auth.adminAccess}</p>
+              <p className="text-gray-400 text-xs mt-1">{tr.auth.manageSystem}</p>
             </div>
           </div>
         </TiltCard>
@@ -136,6 +140,7 @@ function StepRole({ onSelect }: { onSelect: (r: Role) => void }) {
     </div>
   );
 }
+
 
 /* ------------------------------------------------------------------ */
 /*  Step 2 — Vote category (admin only)                               */
@@ -156,7 +161,14 @@ const iconColorMap: Record<string, string> = {
 };
 
 function StepCategory({ onSelect }: { onSelect: (c: VoteCategory) => void }) {
+  const { tr } = useTranslation();
   const [selected, setSelected] = useState<VoteCategory>(null);
+
+  const translatedCategories = [
+    { id: 'organization', label: tr.auth.orgVote, icon: Building2, color: 'blue' },
+    { id: 'college',      label: tr.auth.college,  icon: GraduationCap, color: 'emerald' },
+    { id: 'government',   label: tr.auth.govVote,   icon: Landmark, color: 'amber' },
+  ] as const;
 
   const pick = (id: VoteCategory) => {
     setSelected(id);
@@ -167,12 +179,12 @@ function StepCategory({ onSelect }: { onSelect: (c: VoteCategory) => void }) {
     <div className="space-y-8">
       <div className="text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-purple-400 font-semibold mb-2">Step 2 of 3</p>
-        <h2 className="text-3xl font-bold text-white">Select Voting Category</h2>
-        <p className="text-gray-400 mt-2 text-sm">Choose the type of election you manage</p>
+        <h2 className="text-3xl font-bold text-white">{tr.auth.selectCategory}</h2>
+        <p className="text-gray-400 mt-2 text-sm">{tr.auth.chooseElectionType}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-3">
-        {categories.map(({ id, label, icon: Icon, color }) => {
+        {translatedCategories.map(({ id, label, icon: Icon, color }) => {
           const isSelected = selected === id;
           return (
             <TiltCard key={id} onClick={() => pick(id as VoteCategory)}>
@@ -241,7 +253,8 @@ function FloatingInput({ id, label, type = 'text', value, onChange, placeholder 
   );
 }
 
-function StepAuthForm({ role, mode, onSuccess }: { role: Role; mode: AuthMode; onSuccess: () => void }) {
+function StepAuthForm({ role, mode, category, onSuccess }: { role: Role; mode: AuthMode; category: VoteCategory; onSuccess: () => void }) {
+  const { tr } = useTranslation();
   const [name, setName]           = useState('');
   const [email, setEmail]         = useState(role === 'admin' && mode === 'login' ? 'admin@college.com' : '');
   const [designation, setDesig]   = useState('');
@@ -252,7 +265,8 @@ function StepAuthForm({ role, mode, onSuccess }: { role: Role; mode: AuthMode; o
   const [loading, setLoading]     = useState(false);
 
   const isAdminRegister = role === 'admin' && mode === 'register';
-  const stepLabel = role === 'admin' ? '3 of 3' : '2 of 2';
+  // Login is always 2 steps; only admin *register* is 3 steps
+  const stepLabel = isAdminRegister ? '3 of 3' : '2 of 2';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -260,7 +274,7 @@ function StepAuthForm({ role, mode, onSuccess }: { role: Role; mode: AuthMode; o
 
     // Confirm password check for register flows
     if (mode === 'register' && password !== confirm) {
-      setError('Passwords do not match.');
+      setError(tr.auth.passwordMismatch);
       return;
     }
 
@@ -276,14 +290,20 @@ function StepAuthForm({ role, mode, onSuccess }: { role: Role; mode: AuthMode; o
             setLoading(false);
             onSuccess();
           } else {
-            setError('Invalid admin credentials.');
+            setError(tr.auth.invalidAdmin);
             setLoading(false);
           }
         } else {
           // Admin register — simulate success (frontend only)
           localStorage.setItem('isAdmin', 'true');
+          // Save profile for dashboard display
+          localStorage.setItem('adminProfile', JSON.stringify({
+            name, email, designation,
+            category,          // organisation type chosen in step 2
+            registeredAt: new Date().toISOString(),
+          }));
           const logs = JSON.parse(localStorage.getItem('adminLogs') || '[]');
-          logs.unshift({ id: Date.now(), action: `Admin registered: ${name}`, time: new Date().toISOString() });
+          logs.unshift({ id: Date.now(), action: `Admin registered: ${name}`, time: new Date().toISOString(), type: 'auth' });
           localStorage.setItem('adminLogs', JSON.stringify(logs));
           setLoading(false);
           onSuccess();
@@ -297,20 +317,20 @@ function StepAuthForm({ role, mode, onSuccess }: { role: Role; mode: AuthMode; o
   };
 
   const heading = isAdminRegister
-    ? 'Register Admin Account'
+    ? tr.auth.registerAdmin
     : role === 'admin'
-    ? 'Admin Control Panel'
+    ? tr.auth.adminPanel
     : mode === 'login'
-    ? 'Voter Access Portal'
-    : 'Create Voter Account';
+    ? tr.auth.voterPortal
+    : tr.auth.createVoter;
 
   const subtitle = isAdminRegister
-    ? 'Fill in your details to create an admin account'
+    ? tr.auth.fillAdminDetails
     : role === 'admin'
-    ? 'Enter your credentials to proceed'
+    ? tr.auth.enterCredentials
     : mode === 'login'
-    ? 'Sign in to cast your vote'
-    : 'Register to participate in the election';
+    ? tr.auth.signInToVote
+    : tr.auth.registerToParticipate;
 
   const accentColor = role === 'admin' ? '#a78bfa' : '#22d3ee';
   const btnGradient = role === 'admin'
@@ -331,18 +351,18 @@ function StepAuthForm({ role, mode, onSuccess }: { role: Role; mode: AuthMode; o
 
         {/* ── Full name: voter register + admin register ── */}
         {(mode === 'register') && (
-          <FloatingInput id="auth-name" label="Full Name" value={name} onChange={setName} placeholder="John Doe" />
+          <FloatingInput id="auth-name" label={tr.auth.fullName} value={name} onChange={setName} placeholder="John Doe" />
         )}
 
         {/* ── Designation: admin register only ── */}
         {isAdminRegister && (
-          <FloatingInput id="auth-desig" label="Designation / Role" value={designation} onChange={setDesig} placeholder="e.g. Election Officer" />
+          <FloatingInput id="auth-desig" label={tr.auth.designation} value={designation} onChange={setDesig} placeholder="e.g. Election Officer" />
         )}
 
         {/* ── Email ── */}
         <FloatingInput
           id="auth-email"
-          label={role === 'admin' ? 'Admin Email' : 'Email / Voter ID'}
+          label={role === 'admin' ? tr.auth.adminEmail : tr.auth.email}
           type="email"
           value={email}
           onChange={setEmail}
@@ -351,20 +371,20 @@ function StepAuthForm({ role, mode, onSuccess }: { role: Role; mode: AuthMode; o
 
         {/* ── Aadhaar: voter register only ── */}
         {role === 'voter' && mode === 'register' && (
-          <FloatingInput id="auth-aadhaar" label="Aadhaar (optional)" value={aadhaar} onChange={setAadhaar} placeholder="XXXX XXXX XXXX" />
+          <FloatingInput id="auth-aadhaar" label={tr.auth.aadhaar} value={aadhaar} onChange={setAadhaar} placeholder="XXXX XXXX XXXX" />
         )}
 
         {/* ── Password ── */}
-        <FloatingInput id="auth-password" label="Password" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
+        <FloatingInput id="auth-password" label={tr.auth.password} type="password" value={password} onChange={setPassword} placeholder="••••••••" />
 
         {/* ── Confirm password: all register flows ── */}
         {mode === 'register' && (
-          <FloatingInput id="auth-confirm" label="Confirm Password" type="password" value={confirm} onChange={setConfirm} placeholder="••••••••" />
+          <FloatingInput id="auth-confirm" label={tr.auth.confirmPassword} type="password" value={confirm} onChange={setConfirm} placeholder="••••••••" />
         )}
 
         {/* ── Demo hint for admin login only ── */}
         {role === 'admin' && mode === 'login' && (
-          <p className="text-center text-xs text-gray-600 font-mono pt-1">Demo: admin@college.com / admin123</p>
+          <p className="text-center text-xs text-gray-600 font-mono pt-1">{tr.auth.demo}</p>
         )}
 
         {error && (
@@ -381,11 +401,11 @@ function StepAuthForm({ role, mode, onSuccess }: { role: Role; mode: AuthMode; o
           {loading ? (
             <>
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              {mode === 'register' ? 'Creating Account...' : 'Authenticating...'}
+              {mode === 'register' ? tr.auth.creatingAccount : tr.auth.authenticating}
             </>
-          ) : isAdminRegister ? 'Create Admin Account' :
-            role === 'admin' ? 'Access Admin Dashboard' :
-            mode === 'login' ? 'Sign In & Vote' : 'Create Account'
+          ) : isAdminRegister ? tr.auth.createAdminAccount :
+            role === 'admin' ? tr.auth.accessDashboard :
+            mode === 'login' ? tr.auth.signIn : tr.auth.createAccount
           }
         </RippleButton>
       </form>
@@ -397,6 +417,7 @@ function StepAuthForm({ role, mode, onSuccess }: { role: Role; mode: AuthMode; o
 /*  Access Granted overlay                                             */
 /* ------------------------------------------------------------------ */
 function AccessGranted({ role }: { role: Role }) {
+  const { tr } = useTranslation();
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -417,8 +438,8 @@ function AccessGranted({ role }: { role: Role }) {
           <span className="text-5xl">✅</span>
         </motion.div>
         <div>
-          <h2 className="text-4xl font-bold text-white">Access Granted</h2>
-          <p className="text-gray-400 mt-2">Redirecting to {role === 'admin' ? 'Admin Dashboard' : 'Voter Dashboard'}...</p>
+          <h2 className="text-4xl font-bold text-white">{tr.auth.accessGranted}</h2>
+          <p className="text-gray-400 mt-2">{role === 'admin' ? tr.auth.redirectingAdmin : tr.auth.redirectingVoter}</p>
         </div>
         <div className="flex justify-center gap-1">
           {[0, 1, 2].map(i => (
@@ -454,14 +475,15 @@ function ProgressDots({ total, current }: { total: number; current: number }) {
 /* ------------------------------------------------------------------ */
 /*  Main AuthModal                                                      */
 /* ------------------------------------------------------------------ */
-export function AuthModal({ initialMode, onClose, embeddedMode = false }: AuthModalProps) {
-  const [step, setStep]       = useState(0);
-  const [dir, setDir]         = useState(1);
-  const [role, setRole]       = useState<Role>(null);
-  const [, setCategory]       = useState<VoteCategory>(null);
-  const [mode]                = useState<AuthMode>(initialMode);
-  const [granted, setGranted] = useState(false);
-  const router                = useRouter();
+export function AuthModal({ initialMode, onClose, embeddedMode = false, initialRole = null, startAtForm = false }: AuthModalProps) {
+  const { tr } = useTranslation();
+  const [step, setStep]         = useState(startAtForm ? 2 : 0);
+  const [dir, setDir]           = useState(1);
+  const [role, setRole]         = useState<Role>(initialRole);
+  const [category, setCategory] = useState<VoteCategory>(null);
+  const [mode]                  = useState<AuthMode>(initialMode);
+  const [granted, setGranted]   = useState(false);
+  const router                  = useRouter();
 
   const go = useCallback((nextStep: number) => {
     setDir(nextStep > step ? 1 : -1);
@@ -470,8 +492,14 @@ export function AuthModal({ initialMode, onClose, embeddedMode = false }: AuthMo
 
   const handleRoleSelect = (r: Role) => {
     setRole(r);
-    if (r === 'admin') go(1);
-    else go(2);
+    if (mode === 'login') {
+      // Login: navigate to role-specific URL — no category step
+      router.push(r === 'voter' ? '/login/voter' : '/login/admin-type');
+    } else {
+      // Register: admin needs category, voter goes straight to form
+      if (r === 'admin') go(1);
+      else go(2);
+    }
   };
 
   const handleCategorySelect = (c: VoteCategory) => {
@@ -486,13 +514,18 @@ export function AuthModal({ initialMode, onClose, embeddedMode = false }: AuthMo
     }, 2000);
   };
 
-  const totalDots = role === 'admin' ? 3 : 2;
-  const currentDot = role === 'admin' ? step : step === 2 ? 1 : 0;
+  // Login is always 2 steps (role → form); register adds category for admin
+  const totalDots  = (mode === 'register' && role === 'admin') ? 3 : 2;
+  const currentDot = (() => {
+    if (startAtForm) return 1;                          // sub-page: already on form
+    if (mode === 'register' && role === 'admin') return step;  // 0→1→2 for admin register
+    return step === 2 ? 1 : 0;                          // voter or login
+  })();
 
   const stepContent = (
     step === 0 ? <StepRole onSelect={handleRoleSelect} /> :
     step === 1 ? <StepCategory onSelect={handleCategorySelect} /> :
-    <StepAuthForm role={role} mode={mode} onSuccess={handleSuccess} />
+    <StepAuthForm role={role} mode={mode} category={category} onSuccess={handleSuccess} />
   );
 
   /* ---------- The glass card (shared between both modes) ---------- */
@@ -515,19 +548,22 @@ export function AuthModal({ initialMode, onClose, embeddedMode = false }: AuthMo
         {/* Progress — hidden until a role is chosen */}
         {role === null ? (
           <p className="text-center text-xs uppercase tracking-[0.25em] text-gray-500 font-medium mb-6">
-            Choose your access type
+            {tr.auth.chooseAccessType}
           </p>
         ) : (
           <ProgressDots total={totalDots} current={currentDot} />
         )}
 
-        {/* Back button — voter goes to step 0, admin goes to step 1 */}
-        {step > 0 && (
+        {/* Back button */}
+        {(step > 0 || startAtForm) && (
           <button
-            onClick={() => go(role === 'voter' ? 0 : step - 1)}
+            onClick={() => {
+              if (startAtForm) router.push('/login'); // sub-page: back to role selection
+              else go(role === 'voter' ? 0 : step - 1);
+            }}
             className="absolute top-5 left-5 text-xs text-gray-500 hover:text-white transition-colors flex items-center gap-1"
           >
-            ← Back
+            {tr.auth.back}
           </button>
         )}
 

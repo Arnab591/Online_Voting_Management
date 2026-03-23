@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { ParticleBackground } from '@/components/ui/ParticleBackground';
+import { useTranslation } from '@/context/LanguageContext';
 
 
 // --- Reusable Animated Components ---
@@ -93,7 +94,7 @@ function FlipCard({ icon, title, description, colorClass }: { icon: React.ReactN
           <h3 className="text-2xl font-bold text-white tracking-wide">{title}</h3>
           <div className="mt-4 text-gray-400 text-sm opacity-60 flex items-center gap-2">
             <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" /></svg>
-            Hover to reveal
+            <span className="var-reveal">{/* Replaced dynamically where FlipCard is called if needed, or static here if common */}</span>
           </div>
         </div>
         
@@ -118,7 +119,8 @@ function FlipCard({ icon, title, description, colorClass }: { icon: React.ReactN
 
 
 export default function Home() {
-  const fullText = "Secure Digital Voting System";
+  const { tr } = useTranslation();
+  const fullText = tr.home.heroTitleDefault;
   const [typedText, setTypedText] = useState("");
   const [showSub1, setShowSub1] = useState(false);
   const [showSub2, setShowSub2] = useState(false);
@@ -199,13 +201,13 @@ export default function Home() {
           <div className="space-y-4 mt-8 flex flex-col items-center justify-center min-h-[90px]">
             <div className={`transition-all duration-1000 ease-out transform ${showSub1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 absolute'}`}>
               <p className="mx-auto max-w-2xl text-xl sm:text-2xl font-medium text-gray-300 drop-shadow-md">
-                Vote Safety, Transparency, and Security
+                {tr.home.heroSub1}
               </p>
             </div>
             
             <div className={`transition-all duration-1000 ease-out transform ${showSub2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 absolute'} mt-2`}>
               <p className="mx-auto max-w-2xl text-2xl sm:text-3xl font-bold tracking-tight text-white drop-shadow-lg">
-                Your Voice Matters.
+                {tr.home.heroSub2}
               </p>
             </div>
           </div>
@@ -215,12 +217,12 @@ export default function Home() {
             <button
               onClick={() => router.push('/login')}
               className="px-8 py-3.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_30px_rgba(6,182,212,0.8)] hover:-translate-y-1 transition-all duration-300 min-w-[180px]">
-              Login
+              {tr.home.loginBtn}
             </button>
             <button
               onClick={() => router.push('/register')}
               className="px-8 py-3.5 rounded-full bg-white/5 hover:bg-white/10 text-white font-semibold backdrop-blur-lg border border-white/20 hover:border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.15)] hover:-translate-y-1 transition-all duration-300 min-w-[180px]">
-              Register
+              {tr.home.registerBtn}
             </button>
           </div>
         </div>
@@ -239,10 +241,10 @@ export default function Home() {
         <ScrollReveal>
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
-              <StarryHeading>Live Early Results</StarryHeading>
+              <StarryHeading>{tr.home.liveResults}</StarryHeading>
               <div className="flex items-center gap-2 mt-4 sm:mt-0 bg-white/5 border border-white/10 px-4 py-2 rounded-full">
                 <div className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]"></div>
-                <span className="text-sm font-medium text-gray-300 uppercase tracking-widest">Live Updates</span>
+                <span className="text-sm font-medium text-gray-300 uppercase tracking-widest">{tr.home.liveUpdates}</span>
               </div>
             </div>
 
@@ -289,12 +291,12 @@ export default function Home() {
         <ScrollReveal>
           <div className="max-w-4xl mx-auto space-y-10">
             <div className="flex justify-center">
-              <StarryHeading>About the Election</StarryHeading>
+              <StarryHeading>{tr.home.aboutTitle}</StarryHeading>
             </div>
             <div className="bg-gray-900/30 backdrop-blur-sm p-8 md:p-12 rounded-3xl border border-white/5 shadow-2xl relative">
               <div className="absolute -top-6 -left-6 text-accent opacity-20 text-9xl">"</div>
               <p className="text-xl md:text-2xl leading-relaxed text-gray-300 text-center relative z-10 font-medium">
-                Welcome to the Annual General Election. This digital platform ensures every eligible voter has a secure, anonymous, and verifiable way to cast their vote. We aim to modernize the democratic process and increase participation through accessible technology.
+                {tr.home.aboutDesc}
               </p>
               <div className="absolute -bottom-16 -right-6 text-accent opacity-20 text-9xl rotate-180">"</div>
             </div>
@@ -308,9 +310,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto relative z-10">
           <ScrollReveal>
             <div className="mb-20 text-center flex flex-col items-center">
-              <StarryHeading>Enterprise-Grade Security</StarryHeading>
+              <StarryHeading>{tr.home.enterpriseSecurity}</StarryHeading>
               <p className="mt-6 text-xl text-gray-400 max-w-2xl">
-                We employ advanced cryptography and state-of-the-art architectures to guarantee the integrity of your vote.
+                {tr.home.enterpriseDesc}
               </p>
             </div>
           </ScrollReveal>
@@ -318,8 +320,8 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
             <ScrollReveal delay={100}>
               <FlipCard 
-                title="One Vote Per User"
-                description="Strict one-user, one-vote enforcement using strong identity verification and state management. Duplicate attempts are mathematically blocked."
+                title={tr.home.sec1Title}
+                description={tr.home.sec1Desc}
                 colorClass="bg-blue-500/20 text-blue-400 border border-blue-500/30"
                 icon={
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -331,8 +333,8 @@ export default function Home() {
 
             <ScrollReveal delay={300}>
               <FlipCard 
-                title="Tamper-Proof"
-                description="Once cast, votes are stored permanently in a secure database structure, preventing any unauthorized edits. Your vote is immutable."
+                title={tr.home.sec2Title}
+                description={tr.home.sec2Desc}
                 colorClass="bg-accent/20 text-accent border border-accent/30"
                 icon={
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -344,8 +346,8 @@ export default function Home() {
 
             <ScrollReveal delay={500}>
               <FlipCard 
-                title="Secure Auth"
-                description="NextAuth verification processes employing military-grade JWT tokens ensures only eligible, verified users gain access to the ballots."
+                title={tr.home.sec3Title}
+                description={tr.home.sec3Desc}
                 colorClass="bg-purple-500/20 text-purple-400 border border-purple-500/30"
                 icon={
                   <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">

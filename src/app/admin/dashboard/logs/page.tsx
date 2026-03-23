@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { ScrollText, Clock, User, ShieldAlert, Activity, ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslation } from '@/context/LanguageContext';
 
 interface LogEntry {
   id: number;
@@ -57,6 +58,7 @@ function classifyLog(action: string, type?: string): string {
 }
 
 export default function ActivityLogs() {
+  const { tr } = useTranslation();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
@@ -99,12 +101,12 @@ export default function ActivityLogs() {
 
       <div className="flex justify-between items-center border-b border-white/10 pb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">System Audit Trail</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">{tr.dashboard.logs}</h1>
           <p className="text-gray-400">All administrative, voter, and system events — categorised for clarity</p>
         </div>
         <button onClick={clearLogs}
           className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg text-sm font-medium transition-colors">
-          Clear All
+          {tr.admin.logsClear}
         </button>
       </div>
 
@@ -124,7 +126,7 @@ export default function ActivityLogs() {
               >
                 <div className="flex items-center gap-3">
                   <div className={`p-1.5 rounded-lg ${cat.bg} border ${cat.border}`}>{cat.icon}</div>
-                  <span className={`font-semibold ${cat.color}`}>{cat.label}</span>
+                  <span className={`font-semibold ${cat.color}`}>{cat.key === 'auth' ? tr.admin.logsAdmin : cat.key === 'election' ? tr.admin.logsElection : cat.key === 'voter' ? tr.admin.logsVoter : cat.label}</span>
                   <span className="px-2 py-0.5 rounded-full bg-white/5 text-xs text-gray-400 border border-white/10 font-mono">
                     {cat.entries.length}
                   </span>

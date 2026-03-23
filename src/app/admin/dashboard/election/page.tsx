@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, Users, Calendar, ChevronDown, ChevronUp, Pencil, X } from 'lucide-react';
+import { useTranslation } from '@/context/LanguageContext';
 
 interface Candidate { id: number; name: string; party: string; imageUrl: string; }
 interface ElectionConfig {
@@ -15,6 +16,7 @@ const emptyForm = { title: '', description: '', startDate: '', endDate: '' };
 const emptyCandidate = (): Candidate => ({ id: Date.now(), name: '', party: '', imageUrl: '' });
 
 export default function CreateElection() {
+  const { tr } = useTranslation();
   const [elections, setElections] = useState<ElectionConfig[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -95,7 +97,7 @@ export default function CreateElection() {
   };
 
   const deleteElection = (id: string) => {
-    if (!confirm('Delete this election configuration?')) return;
+    if (!confirm(tr.admin.deleteConfirmMsg)) return;
     const updated = elections.filter(e => e.id !== id);
     persist(updated);
     logActivity('Election configuration deleted');
@@ -113,7 +115,7 @@ export default function CreateElection() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Election Configurations</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">{tr.admin.electionConfigs}</h1>
           <p className="text-gray-400">Create and manage election setups. Each configuration is saved as a list entry.</p>
         </div>
         {!showForm && (
@@ -121,7 +123,7 @@ export default function CreateElection() {
             onClick={openNew}
             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl font-semibold shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all"
           >
-            <Plus className="w-4 h-4" /> New Election
+            <Plus className="w-4 h-4" /> {tr.admin.newElection}
           </button>
         )}
       </div>
@@ -134,7 +136,7 @@ export default function CreateElection() {
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-white flex items-center gap-2">
               <Calendar className="w-5 h-5 text-blue-400" />
-              {editingId ? 'Edit Election' : 'New Election'}
+              {editingId ? tr.admin.editElection : tr.admin.newElection}
             </h2>
             <button type="button" onClick={() => setShowForm(false)} className="text-gray-500 hover:text-white transition-colors">
               <X className="w-5 h-5" />
@@ -144,24 +146,24 @@ export default function CreateElection() {
           {/* General Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 relative z-10">
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-gray-300">Election Title</label>
+              <label className="text-sm font-medium text-gray-300">{tr.admin.title}</label>
               <input type="text" required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
                 className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all placeholder-gray-600"
                 placeholder="e.g. Student Council Election 2026" />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-gray-300">Description</label>
+              <label className="text-sm font-medium text-gray-300">{tr.admin.desc}</label>
               <textarea required value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}
                 className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all min-h-[80px] placeholder-gray-600 resize-none"
                 placeholder="Election guidelines and details." />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Start Date</label>
+              <label className="text-sm font-medium text-gray-300">{tr.admin.startDate}</label>
               <input type="datetime-local" required value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})}
                 className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">End Date</label>
+              <label className="text-sm font-medium text-gray-300">{tr.admin.endDate}</label>
               <input type="datetime-local" required value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})}
                 className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/50 transition-all [color-scheme:dark]" />
             </div>
@@ -171,11 +173,11 @@ export default function CreateElection() {
           <div className="space-y-4 relative z-10">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-white flex items-center gap-2 text-lg">
-                <Users className="w-4 h-4 text-purple-400" /> Candidates
+                <Users className="w-4 h-4 text-purple-400" /> {tr.admin.candidates}
               </h3>
               <button type="button" onClick={() => setCandidates([...candidates, emptyCandidate()])}
                 className="px-3 py-1.5 bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors border border-purple-500/30">
-                <Plus className="w-3.5 h-3.5" /> Add
+                <Plus className="w-3.5 h-3.5" /> {tr.admin.addCandidate}
               </button>
             </div>
             {candidates.map((c, i) => (
@@ -190,7 +192,7 @@ export default function CreateElection() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {(['name', 'party', 'imageUrl'] as const).map(field => (
                     <div key={field} className="space-y-1.5">
-                      <label className="text-xs font-medium text-gray-400 capitalize">{field === 'imageUrl' ? 'Image URL' : field === 'party' ? 'Party / Affiliation' : 'Full Name'}</label>
+                      <label className="text-xs font-medium text-gray-400 capitalize">{field === 'imageUrl' ? tr.admin.imageUrl : field === 'party' ? tr.admin.party : tr.admin.candidateName}</label>
                       <input type={field === 'imageUrl' ? 'url' : 'text'} required value={c[field]}
                         onChange={e => handleCandidateChange(i, field, e.target.value)}
                         className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition-all placeholder-gray-600"
@@ -203,15 +205,15 @@ export default function CreateElection() {
           </div>
 
           <div className="flex items-center justify-end gap-4 pt-4 border-t border-white/5">
-            {saved && <span className="text-green-400 text-sm font-medium">✓ Saved!</span>}
+            {saved && <span className="text-green-400 text-sm font-medium">✓ {tr.admin.saved}</span>}
             <button type="button" onClick={() => setShowForm(false)}
               className="px-5 py-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-white hover:border-white/20 text-sm transition-all">
-              Cancel
+              {tr.admin.cancel}
             </button>
             <button type="submit"
               className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl font-semibold shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all flex items-center gap-2 text-sm">
               <Save className="w-4 h-4" />
-              {editingId ? 'Update Election' : 'Save Election'}
+              {editingId ? tr.admin.updateElection : tr.admin.saveElection}
             </button>
           </div>
         </form>
@@ -221,9 +223,9 @@ export default function CreateElection() {
       {elections.length === 0 && !showForm ? (
         <div className="bg-white/5 border border-white/10 rounded-3xl p-12 flex flex-col items-center justify-center gap-4 text-center">
           <Calendar className="w-12 h-12 text-gray-600" />
-          <p className="text-gray-400 font-medium">No elections configured yet</p>
+          <p className="text-gray-400 font-medium">{tr.admin.noElections}</p>
           <button onClick={openNew} className="px-5 py-2.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-xl text-sm font-medium transition-colors">
-            Create First Election
+            {tr.admin.createFirstElection}
           </button>
         </div>
       ) : (
