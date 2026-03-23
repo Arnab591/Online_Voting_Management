@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ParticleBackground } from '@/components/ui/ParticleBackground';
+
 
 // --- Reusable Animated Components ---
 
@@ -121,6 +123,7 @@ export default function Home() {
   const [showSub1, setShowSub1] = useState(false);
   const [showSub2, setShowSub2] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     let currentText = "";
@@ -173,6 +176,9 @@ export default function Home() {
 
   return (
     <div className="w-full bg-primary font-sans selection:bg-accent/30 selection:text-white">
+      {/* Animated particle background */}
+      <ParticleBackground />
+
       {/* Hero Section */}
       <section className="relative w-full py-24 lg:py-32 xl:py-48 overflow-hidden bg-primary text-white flex flex-col items-center text-center px-4 sm:px-6 lg:px-8 min-h-screen justify-center">
         <div className="absolute inset-0 z-0">
@@ -204,22 +210,18 @@ export default function Home() {
             </div>
           </div>
           
+          {/* CTA Buttons — navigate to /login or /register */}
           <div className={`flex flex-col sm:flex-row flex-wrap items-center justify-center gap-5 pt-16 transition-all duration-1000 ease-out transform ${showButtons ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-            <Link href="/login">
-              <button className="px-8 py-3.5 rounded-full bg-accent hover:bg-min-h-accent-hover text-white font-semibold backdrop-blur-lg border border-accent-hover shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.7)] hover:-translate-y-1 transition-all duration-300 min-w-[200px]">
-                Voter Login
-              </button>
-            </Link>
-            <Link href="/login?role=admin">
-              <button className="px-8 py-3.5 rounded-full bg-gray-900/50 hover:bg-gray-800/80 text-white font-semibold backdrop-blur-lg border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] hover:-translate-y-1 transition-all duration-300 min-w-[200px]">
-                Admin Login
-              </button>
-            </Link>
-            <Link href="/register">
-              <button className="px-8 py-3.5 rounded-full bg-gray-900/50 hover:bg-gray-800/80 text-white font-semibold backdrop-blur-lg border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.2)] hover:-translate-y-1 transition-all duration-300 min-w-[200px]">
-                Register for Voter
-              </button>
-            </Link>
+            <button
+              onClick={() => router.push('/login')}
+              className="px-8 py-3.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_30px_rgba(6,182,212,0.8)] hover:-translate-y-1 transition-all duration-300 min-w-[180px]">
+              Login
+            </button>
+            <button
+              onClick={() => router.push('/register')}
+              className="px-8 py-3.5 rounded-full bg-white/5 hover:bg-white/10 text-white font-semibold backdrop-blur-lg border border-white/20 hover:border-white/40 shadow-[0_0_15px_rgba(255,255,255,0.05)] hover:shadow-[0_0_25px_rgba(255,255,255,0.15)] hover:-translate-y-1 transition-all duration-300 min-w-[180px]">
+              Register
+            </button>
           </div>
         </div>
 
