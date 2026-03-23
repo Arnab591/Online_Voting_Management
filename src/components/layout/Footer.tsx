@@ -16,10 +16,10 @@ export function Footer() {
 
         {/* Center: Legal & Policies */}
         <div className="w-full md:w-1/3 flex justify-center flex-wrap gap-x-6 gap-y-2">
-          <Link href="/privacy" className="text-sm hover:text-accent transition-colors duration-200">
+          <Link href="/privacy-policy" className="text-sm hover:text-accent transition-colors duration-200">
             {tr.footer.privacy}
           </Link>
-          <Link href="/terms" className="text-sm hover:text-accent transition-colors duration-200">
+          <Link href="/terms-of-use" className="text-sm hover:text-accent transition-colors duration-200">
             {tr.footer.terms}
           </Link>
           <Link href="/legal" className="text-sm hover:text-accent transition-colors duration-200">
@@ -28,20 +28,20 @@ export function Footer() {
           <Link href="/accessibility" className="text-sm hover:text-accent transition-colors duration-200">
             {tr.footer.accessibility}
           </Link>
-          <Link href="/cookies" className="text-sm hover:text-accent transition-colors duration-200">
+          <Link href="/cookie-policy" className="text-sm hover:text-accent transition-colors duration-200">
             {tr.footer.cookies}
           </Link>
         </div>
 
         {/* Extreme Right: Contextual Links */}
         <div className="w-full md:w-1/3 flex justify-center md:justify-end flex-wrap gap-x-6 gap-y-2 flex-shrink-0">
-          <Link href="#about" className="text-sm hover:text-white transition-colors duration-200">
+          <Link href="/about" className="text-sm hover:text-white transition-colors duration-200">
             {tr.footer.about}
           </Link>
-          <Link href="#rules" className="text-sm hover:text-white transition-colors duration-200">
+          <Link href="/election-rules" className="text-sm hover:text-white transition-colors duration-200">
             {tr.footer.rules}
           </Link>
-          <Link href="#contact" className="text-sm hover:text-white transition-colors duration-200">
+          <Link href="/contact" className="text-sm hover:text-white transition-colors duration-200">
             {tr.footer.contact}
           </Link>
         </div>
